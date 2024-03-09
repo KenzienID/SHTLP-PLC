@@ -1,6 +1,6 @@
 #include <AFMotor.h>
 #include <LiquidCrystal_I2C.h>
-#include "pitches.h" // Library untuk nada pada speaker
+#include "pitches.h" 
 
 AF_DCMotor motorX(1);
 AF_DCMotor motorY(2);
@@ -28,6 +28,10 @@ const int melody[] = {NOTE_C4, NOTE_G3, NOTE_G3, NOTE_A3, NOTE_G3, 0, NOTE_B3, N
 const int noteDurations[] = {4, 8, 8, 4, 4, 4, 4, 4}; // Durasi nada
 
 void setup() {
+  // Pembersihan jalur saat pertama kali dinyalakan
+  cleanPath();
+  
+  // Setup pin dan interrupt
   pinMode(encoderPin, INPUT);
   attachInterrupt(digitalPinToInterrupt(encoderPin), countPulse, RISING); // Menghubungkan fungsi countPulse() dengan interrupt
   lcd.init(); // Inisialisasi LCD
@@ -71,15 +75,15 @@ void loop() {
 
   // Mengecek status tombol reset
   if (digitalRead(btnResetPin) == LOW) {
-    resetMotors(); // Memanggil fungsi resetMotors jika tombol reset ditekan
+    resetMotors(); 
   }
 
-  // Mengecek status tombol keselamatan
+ 
   if (digitalRead(btnSafetyPin) == LOW) {
-    stopMotors(); // Memanggil fungsi stopMotors jika tombol keselamatan ditekan
+    stopMotors();
   }
 
-  // Menghitung RPM setiap interval
+ 
   if (millis() - lastCount >= interval) {
     detachInterrupt(digitalPinToInterrupt(encoderPin)); // Menonaktifkan interrupt sementara
     rpm = (pulseCount - lastCount) * (60000 / interval); // Menghitung RPM
@@ -91,19 +95,19 @@ void loop() {
     lcd.print(rpm); // Menampilkan nilai RPM pada LCD
     attachInterrupt(digitalPinToInterrupt(encoderPin), countPulse, RISING); // Mengaktifkan kembali interrupt
 
-    // Menghasilkan bunyi jika RPM adalah 0
+    
     if (rpm == 0) {
       playMelody();
     }
   }
 }
 
-// Fungsi untuk menghitung pulsa encoder
+
 void countPulse() {
   pulseCount++;
 }
 
-// Fungsi untuk memainkan melodi pada speaker
+
 void playMelody() {
   for (int i = 0; i < 8; i++) {
     int duration = 1000 / noteDurations[i];
@@ -114,30 +118,52 @@ void playMelody() {
   }
 }
 
-// Fungsi untuk mereset/membersihkan jalur motor
+
 void resetMotors() {
   motorX.setSpeed(70); // Kecepatan 70 RPM
   motorY.setSpeed(70); // Kecepatan 70 RPM
   motorZ.setSpeed(70); // Kecepatan 70 RPM
   motorD.setSpeed(70); // Kecepatan 70 RPM
   
-  // Menggerakkan motor ke kiri
+
   motorX.run(BACKWARD);
   motorY.run(BACKWARD);
   motorZ.run(BACKWARD);
   motorD.run(BACKWARD);
 
-  delay(2000); // Menggerakkan motor selama 2 detik
+
   
-  // Menghentikan motor
+
   motorX.run(RELEASE);
   motorY.run(RELEASE);
   motorZ.run(RELEASE);
   motorD.run(RELEASE);
 }
 
-// Fungsi untuk menghentikan semua motor
+
 void stopMotors() {
+  motorX.run(RELEASE);
+  motorY.run(RELEASE);
+  motorZ.run(RELEASE);
+  motorD.run(RELEASE);
+}
+
+
+void cleanPath() {
+  motorX.setSpeed(70); // Kecepatan 70 RPM
+  motorY.setSpeed(70); // Kecepatan 70 RPM
+  motorZ.setSpeed(70); // Kecepatan 70 RPM
+  motorD.setSpeed(70); // Kecepatan 70 RPM
+  
+
+  motorX.run(BACKWARD);
+  motorY.run(BACKWARD);
+  motorZ.run(BACKWARD);
+  motorD.run(BACKWARD);
+
+  delay(5000); 
+  
+  
   motorX.run(RELEASE);
   motorY.run(RELEASE);
   motorZ.run(RELEASE);
